@@ -1,0 +1,39 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'trading-platform'
+    environment: 'production'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'fix-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['fix-gateway:8081']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'fix-gateway'
+
+  - job_name: 'matching-engine'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['matching-engine:8084']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'matching-engine'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files:
+  # - "alerts.yml"
+
+# Made with Bob
